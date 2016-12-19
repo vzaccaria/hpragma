@@ -6,19 +6,18 @@
 {-# LANGUAGE Rank2Types                #-}
 {-# LANGUAGE TypeFamilies              #-}
 {-# LANGUAGE TypeOperators             #-}
-
-module Backend.SageData where
+ 
+module Language.Data where
 
 import           Control.Arrow
 import           Data.Proxy
 import           GHC.TypeLits
-import           Language.Operators
 import           Prelude            (IO (..), Int, Show, String, iterate, map,
                                      mod, putStrLn, quot, show, undefined, ($),
                                      (*), (+), (++), (-))
 
 
-__stride k n = let
+stride k n = let
                   ids' = map ff ids
                   ids  = [0 .. (n - 1)]
                   ff x = mod (x * k) n + quot (x * k) n

@@ -13,29 +13,32 @@ import           Control.Arrow
 import           Data.Proxy
 import           GHC.TypeLits
 import           Language.Operators
+import           Language.Combinators
 import           Prelude            (IO (..), Int, Show, String, iterate, map,
                                      mod, putStrLn, quot, show, undefined, ($),
                                      (*), (+), (++), (-), (.))
 
-import Backend.SageData
 import Backend.SageHelpers
 
 import System.Process
 
 data family Sa a
-data instance Sa (M a b)= S { unS :: String }
+data instance Sa (M a b)= S { unS :: String } 
 
 instance Symantics Sa where
-  l n _ I    = S $ (toGF2 . iden $ natVal n)
-  l _ _ MC_4 = S $ toGF2 $ fromHaskellList [[2, 3, 1, 1], [1, 2, 3, 1], [1, 1, 2, 3], [3, 1, 1, 2]]
-  l _ _ AR   = S $ toGF2 $ fromHaskellList [[1, 1]]
-  l _ _ PSR  = S $ toGF2 $ fromHaskellList shiftRowMatrix
-  l _ _ PMC  = S $ toGF2 $ stridePermutation 4 16
-  l _ _ SBOX = S $ toGF2 $ fromHaskellList _sboxData
+  l n _ I        = S $ (toGF2 . iden $ natVal n)
+  l _ _ (LIT v)  = S $ toGF2 $ fromHaskellList v
+  l _ _ (PERM v) = S $ toGF2 $ permutation v
+  t x            = S $ tran (unS x)
 
-  a <*> b    = S $ unS a ++ " * " ++ unS b
+  a <*> b    = S $ "(" ++ unS a ++ " * " ++ unS b ++ ")"
   a <**> b   = S $ unS a ++ ".tensor_product(" ++ unS b ++ ")"
 
-tbox = (i4 <**> mc) <*> pmc <*> sr 
 
-printtbox = sage (print $ unS tbox)
+vec :: String -> Sa (M 1 16)
+vec x = S $ toGF2 $fromHexString x
+
+apply m x = (liftMx m) x
+emit x  = putStrLn (unS x)
+eval x  = sage (print $ unS x)
+
