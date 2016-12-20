@@ -35,10 +35,8 @@ instance Symantics Sa where
   a <**> b   = S $ unS a ++ ".tensor_product(" ++ unS b ++ ")"
 
 
-vec :: String -> Sa (M 1 16)
-vec x = S $ toGF2 $fromHexString x
 
 apply m x = (liftMx m) x
 emit x  = putStrLn (unS x)
-eval x  = sage (print $ unS x)
+eval x  = sage (print $ fromGF2 $ unS $ t x)
 
